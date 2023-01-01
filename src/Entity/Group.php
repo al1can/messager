@@ -2,35 +2,36 @@
 
 namespace App\Entity;
 
-use App\Repository\MessageRepository;
+use App\Repository\GroupRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: MessageRepository::class)]
-class Message
+#[ORM\Entity(repositoryClass: GroupRepository::class)]
+#[ORM\Table(name: '`group`')]
+class Group
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $message = null;
+    #[ORM\Column(length: 50)]
+    private ?string $name = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $create_date = null;
 
-    #[ORM\ManyToOne(inversedBy: 'messages')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $user_sent = null;
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'groups')]
+    private Collection $users;
 
-    #[ORM\OneToMany(mappedBy: 'message', targetEntity: Recipient::class)]
+    #[ORM\OneToMany(mappedBy: 'recipient_group', targetEntity: Recipient::class)]
     private Collection $recipients;
 
     public function __construct()
     {
+        $this->users = new ArrayCollection();
         $this->recipients = new ArrayCollection();
     }
 
@@ -39,14 +40,14 @@ class Message
         return $this->id;
     }
 
-    public function getMessage(): ?string
+    public function getName(): ?string
     {
-        return $this->message;
+        return $this->name;
     }
 
-    public function setMessage(string $message): self
+    public function setName(string $name): self
     {
-        $this->message = $message;
+        $this->name = $name;
 
         return $this;
     }
@@ -63,14 +64,26 @@ class Message
         return $this;
     }
 
-    public function getUserSent(): ?User
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
     {
-        return $this->user_sent;
+        return $this->users;
     }
 
-    public function setUserSent(?User $user_sent): self
+    public function addUser(User $user): self
     {
-        $this->user_sent = $user_sent;
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        $this->users->removeElement($user);
 
         return $this;
     }
@@ -87,7 +100,7 @@ class Message
     {
         if (!$this->recipients->contains($recipient)) {
             $this->recipients->add($recipient);
-            $recipient->setMessage($this);
+            $recipient->setRecipientGroup($this);
         }
 
         return $this;
@@ -97,8 +110,8 @@ class Message
     {
         if ($this->recipients->removeElement($recipient)) {
             // set the owning side to null (unless already changed)
-            if ($recipient->getMessage() === $this) {
-                $recipient->setMessage(null);
+            if ($recipient->getRecipientGroup() === $this) {
+                $recipient->setRecipientGroup(null);
             }
         }
 
