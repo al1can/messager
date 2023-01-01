@@ -27,15 +27,11 @@ class User
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $name = null;
 
-    #[ORM\ManyToMany(targetEntity: Chat::class, mappedBy: 'users')]
-    private Collection $chats;
-
     #[ORM\OneToMany(mappedBy: 'user_sent', targetEntity: Message::class)]
     private Collection $messages;
 
     public function __construct()
     {
-        $this->chats = new ArrayCollection();
         $this->messages = new ArrayCollection();
     }
 
@@ -81,33 +77,6 @@ class User
     }
 
     /**
-     * @return Collection<int, Chat>
-     */
-    public function getChats(): Collection
-    {
-        return $this->chats;
-    }
-
-    public function addChat(Chat $chat): self
-    {
-        if (!$this->chats->contains($chat)) {
-            $this->chats->add($chat);
-            $chat->addUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeChat(Chat $chat): self
-    {
-        if ($this->chats->removeElement($chat)) {
-            $chat->removeUser($this);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection<int, Message>
      */
     public function getMessages(): Collection
@@ -143,13 +112,11 @@ class User
             'id' => $this->getId(),
             'phone_number' => $this->getPhoneNumber(),
             'country_code' => $this->getCountryCode(),
-            'name' => $this->getName(),
-            'chats' => $this->getChats(),
-            'messages' => $this->getChats()
+            'name' => $this->getName()
         ];
     }
 
-    public static function loadValidatorMetadata(ClassMetadata $metadata)
+    public static function loadValidatorMetadata(ClassMetadata $metadata): void
     {
         $metadata->addPropertyConstraint('name', new NotBlank());
         $metadata->addPropertyConstraint('phone_number', new NotBlank());

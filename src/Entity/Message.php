@@ -24,10 +24,6 @@ class Message
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user_sent = null;
 
-    #[ORM\ManyToOne(inversedBy: 'yes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Chat $chat_id = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -65,18 +61,6 @@ class Message
     public function setUserSent(?User $user_sent): self
     {
         $this->user_sent = $user_sent;
-
-        return $this;
-    }
-
-    public function getChatId(): ?Chat
-    {
-        return $this->chat_id;
-    }
-
-    public function setChatId(?Chat $chat_id): self
-    {
-        $this->chat_id = $chat_id;
 
         return $this;
     }
