@@ -75,6 +75,17 @@ class Message
         return $this;
     }
 
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'message' => $this->message,
+            'create_date' => $this->create_date,
+            'user_sent' => $this->user_sent->toArray(),
+            'recipients' => $this->recipients
+        ];
+    }
+
     /**
      * @return Collection<int, Recipient>
      */

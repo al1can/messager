@@ -11,6 +11,7 @@ use Exception;
 use LDAP\Result;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -57,6 +58,11 @@ class UserController extends AbstractController
     {
         $request = $request->query->all();
         
+        if (empty($request['phone_number']) || empty($request['country_code']) || empty($request['name']))
+        {
+            throw new NotFoundHttpException('Expecting mandatory parameters!');
+        }
+
         $user = new User();
         $user
             ->setPhoneNumber($request['phone_number'])
