@@ -27,16 +27,20 @@ class User
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $name = null;
 
-    #[ORM\ManyToMany(targetEntity: Chat::class, mappedBy: 'users')]
-    private Collection $chats;
-
     #[ORM\OneToMany(mappedBy: 'user_sent', targetEntity: Message::class)]
     private Collection $messages;
 
+    #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'users')]
+    private Collection $groups;
+
+    #[ORM\OneToMany(mappedBy: 'recipient_user', targetEntity: Recipient::class)]
+    private Collection $recipients;
+
     public function __construct()
     {
-        $this->chats = new ArrayCollection();
         $this->messages = new ArrayCollection();
+        $this->groups = new ArrayCollection();
+        $this->recipients = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -81,33 +85,6 @@ class User
     }
 
     /**
-     * @return Collection<int, Chat>
-     */
-    public function getChats(): Collection
-    {
-        return $this->chats;
-    }
-
-    public function addChat(Chat $chat): self
-    {
-        if (!$this->chats->contains($chat)) {
-            $this->chats->add($chat);
-            $chat->addUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeChat(Chat $chat): self
-    {
-        if ($this->chats->removeElement($chat)) {
-            $chat->removeUser($this);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection<int, Message>
      */
     public function getMessages(): Collection
@@ -143,16 +120,71 @@ class User
             'id' => $this->getId(),
             'phone_number' => $this->getPhoneNumber(),
             'country_code' => $this->getCountryCode(),
-            'name' => $this->getName(),
-            'chats' => $this->getChats(),
-            'messages' => $this->getChats()
+            'name' => $this->getName()
         ];
     }
 
-    public static function loadValidatorMetadata(ClassMetadata $metadata)
+    public static function loadValidatorMetadata(ClassMetadata $metadata): void
     {
         $metadata->addPropertyConstraint('name', new NotBlank());
         $metadata->addPropertyConstraint('phone_number', new NotBlank());
         $metadata->addPropertyConstraint('country_code', new NotBlank());
+    }
+
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getGroups(): Collection
+    {
+        return $this->groups;
+    }
+
+    public function addGroup(Group $group): self
+    {
+        if (!$this->groups->contains($group)) {
+            $this->groups->add($group);
+            $group->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroup(Group $group): self
+    {
+        if ($this->groups->removeElement($group)) {
+            $group->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Recipient>
+     */
+    public function getRecipients(): Collection
+    {
+        return $this->recipients;
+    }
+
+    public function addRecipient(Recipient $recipient): self
+    {
+        if (!$this->recipients->contains($recipient)) {
+            $this->recipients->add($recipient);
+            $recipient->setRecipientUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRecipient(Recipient $recipient): self
+    {
+        if ($this->recipients->removeElement($recipient)) {
+            // set the owning side to null (unless already changed)
+            if ($recipient->getRecipientUser() === $this) {
+                $recipient->setRecipientUser(null);
+            }
+        }
+
+        return $this;
     }
 }
