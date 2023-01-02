@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\RecipientRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: RecipientRepository::class)]
 class Recipient
@@ -14,6 +15,7 @@ class Recipient
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'recipients')]
+    #[Ignore]
     private ?Message $message = null;
 
     #[ORM\ManyToOne(inversedBy: 'recipients')]
@@ -61,5 +63,15 @@ class Recipient
         $this->recipient_group = $recipient_group;
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            //'message' => $this->message->toArray(),
+            'recipient user' => $this->recipient_user->toArray(),
+            'recipient group' => $this->recipient_group === null ? null : $this->recipient_group->toArray()
+        ];
     }
 }

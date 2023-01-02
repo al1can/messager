@@ -82,7 +82,7 @@ class Message
             'message' => $this->message,
             'create_date' => $this->create_date,
             'user_sent' => $this->user_sent->toArray(),
-            'recipients' => $this->recipients
+            'recipients' => $this->recipients->first() ? $this->recipients->first()->toArray() : []
         ];
     }
 

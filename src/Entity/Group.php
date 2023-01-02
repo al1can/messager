@@ -64,6 +64,17 @@ class Group
         return $this;
     }
 
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'create_date' => $this->create_date,
+            'users' => $this->users->toArray(),
+            'recipients' => $this->recipients->toArray()
+        ];
+    }
+
     /**
      * @return Collection<int, User>
      */

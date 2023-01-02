@@ -14,6 +14,7 @@ use App\Repository\MessageRepository;
 use App\Repository\RecipientRepository;
 use App\Repository\UserRepository;
 use DateTime;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -31,6 +32,7 @@ class MessageController extends AbstractController
         $this->recipientRepository = $recipientRepository;
         $this->userRepository = $userRepository;
     }
+
     #[Route('/message', name: 'app_message', methods: 'GET')]
     public function index(): JsonResponse
     {
@@ -40,19 +42,22 @@ class MessageController extends AbstractController
         ]);
     }
 
-    #[Route('/message/{message}', name: 'app_message_show', methods: 'GET')]
-    public function show(Message $message): JsonResponse
+    #[Route('/message/{id}', name: 'app_message_show', methods: 'GET')]
+    public function show(ManagerRegistry $doctrine, int $id): JsonResponse
     {
-        return $this->json([$message]);
+        $message = $doctrine->getRepository(Message::class)->find($id);
+
+        $recipients = $message->getRecipients();
+
         return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/MessageController.php',
+            //$recipients->first()->toArray()
+            $message->toArray()
         ]);
     }
 
     #[Route('/message/{user}/{recipient_user}', name: 'app_message_store', methods: 'POST')]
-    public function store(User $user, String $recipient_user, Request $request, ValidatorInterface $validator): JsonResponse
-    {
+    public function store(User $user, String $recipient_user, Request $request, ValidatorInterface $validator, ManagerRegistry $doctrine): JsonResponse
+    {        
         //return $this->json($recipient_user);
         $request = $request->query->all();
         
@@ -73,16 +78,6 @@ class MessageController extends AbstractController
             $errorsString = (string) $errors;
             return new JsonResponse($errorsString);
         }
-
-        try
-        {
-            $this->messageRepository->save($message, true);
-        } catch (Exception $e)
-        {
-            return $this->json([
-                'Exception' => $e
-            ]);
-        }
         
         $recipient = new Recipient();
         $recipient
@@ -98,7 +93,7 @@ class MessageController extends AbstractController
     
         try
         {
-            $this->recipientRepository->save($recipient, true);
+            $this->recipientRepository->save($recipient);
         } catch (Exception $e)
         {
             return $this->json([
@@ -106,9 +101,30 @@ class MessageController extends AbstractController
             ]);
         }
 
+        try
+        {
+            $this->messageRepository->save($message, true);
+        } catch (Exception $e)
+        {
+            return $this->json([
+                'Exception' => $e
+            ]);
+        }
+        return $this->json([$message->toArray()]);
         return $this->json([
             'status' => 'Message succesfully created!',
-            'message' => $message->toArray()
+            'message' => $message,
+            //'recipients' => $message->getRecipients()->first()->toArray()
         ], JsonResponse::HTTP_CREATED);
+    }
+
+    #[Route('/message/{message}', name: 'app_message_delete', methods: 'DELETE')]
+    public function delete(Message $message): JsonResponse
+    {
+        $this->messageRepository->remove($message, true);
+        return $this->json([
+            'status' => 'Message deleted',
+            'message' => $message
+        ], JsonResponse::HTTP_NO_CONTENT);
     }
 }

@@ -128,7 +128,7 @@ class UserController extends AbstractController
     public function delete(String $id): JsonResponse
     {
         $user = $this->userRepository->find($id);
-        $this->userRepository->remove($user);
+        $this->userRepository->remove($user, true);
         return $this->json([
             'status' => 'User succesfully deleted!',
         ], Response::HTTP_NO_CONTENT);
