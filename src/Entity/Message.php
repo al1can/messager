@@ -26,7 +26,7 @@ class Message
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user_sent = null;
 
-    #[ORM\OneToMany(mappedBy: 'message', targetEntity: Recipient::class)]
+    #[ORM\OneToMany(mappedBy: 'message', targetEntity: Recipient::class, orphanRemoval: true)]
     private Collection $recipients;
 
     public function __construct()

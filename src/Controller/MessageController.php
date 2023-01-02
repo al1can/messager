@@ -47,7 +47,7 @@ class MessageController extends AbstractController
     {
         $message = $doctrine->getRepository(Message::class)->find($id);
 
-        $recipients = $message->getRecipients();
+        //$recipients = $message->getRecipients();
 
         return $this->json([
             //$recipients->first()->toArray()
@@ -56,8 +56,8 @@ class MessageController extends AbstractController
     }
 
     #[Route('/message/{user}/{recipient_user}', name: 'app_message_store', methods: 'POST')]
-    public function store(User $user, String $recipient_user, Request $request, ValidatorInterface $validator, ManagerRegistry $doctrine): JsonResponse
-    {        
+    public function store(User $user, User $recipient_user, Request $request, ValidatorInterface $validator, ManagerRegistry $doctrine): JsonResponse
+    {
         //return $this->json($recipient_user);
         $request = $request->query->all();
         
@@ -78,6 +78,7 @@ class MessageController extends AbstractController
             $errorsString = (string) $errors;
             return new JsonResponse($errorsString);
         }
+        
         
         $recipient = new Recipient();
         $recipient
@@ -124,7 +125,7 @@ class MessageController extends AbstractController
         $this->messageRepository->remove($message, true);
         return $this->json([
             'status' => 'Message deleted',
-            'message' => $message
-        ], JsonResponse::HTTP_NO_CONTENT);
+            'message' => $message->toArray()
+        ], JsonResponse::HTTP_OK);
     }
 }
