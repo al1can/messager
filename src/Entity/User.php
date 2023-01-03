@@ -6,6 +6,7 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 
@@ -31,6 +32,7 @@ class User
     private Collection $messages;
 
     #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'users')]
+    #[Ignore]
     private Collection $groups;
 
     #[ORM\OneToMany(mappedBy: 'recipient_user', targetEntity: Recipient::class)]

@@ -125,7 +125,6 @@ class MessageController extends AbstractController
         $this->messageRepository->remove($message, true);
         return $this->json([
             'status' => 'Message deleted',
-            'message' => $message->toArray()
-        ], JsonResponse::HTTP_OK);
+        ], JsonResponse::HTTP_ACCEPTED);
     }
 }

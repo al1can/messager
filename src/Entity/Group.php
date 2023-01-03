@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: GroupRepository::class)]
 #[ORM\Table(name: '`group`')]
@@ -27,6 +28,7 @@ class Group
     private Collection $users;
 
     #[ORM\OneToMany(mappedBy: 'recipient_group', targetEntity: Recipient::class)]
+    #[Ignore]
     private Collection $recipients;
 
     public function __construct()
@@ -70,8 +72,7 @@ class Group
             'id' => $this->id,
             'name' => $this->name,
             'create_date' => $this->create_date,
-            'users' => $this->users->toArray(),
-            'recipients' => $this->recipients->toArray()
+            'users' => $this->users
         ];
     }
 
