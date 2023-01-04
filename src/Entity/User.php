@@ -29,6 +29,7 @@ class User
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'user_sent', targetEntity: Message::class)]
+    #[Ignore]
     private Collection $messages;
 
     #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'users')]
@@ -36,6 +37,7 @@ class User
     private Collection $groups;
 
     #[ORM\OneToMany(mappedBy: 'recipient_user', targetEntity: Recipient::class)]
+    #[Ignore]
     private Collection $recipients;
 
     public function __construct()

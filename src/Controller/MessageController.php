@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Group;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,27 +37,24 @@ class MessageController extends AbstractController
     #[Route('/message', name: 'app_message', methods: 'GET')]
     public function index(): JsonResponse
     {
+        $messages = $this->messageRepository->findAll();
+
         return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/MessageController.php',
-        ]);
+            'messages' => $messages,
+        ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/message/{id}', name: 'app_message_show', methods: 'GET')]
-    public function show(ManagerRegistry $doctrine, int $id): JsonResponse
+    #[Route('/message/{message}', name: 'app_message_show', methods: 'GET')]
+    public function show(ManagerRegistry $doctrine, Message $message): JsonResponse
     {
-        $message = $doctrine->getRepository(Message::class)->find($id);
-
-        //$recipients = $message->getRecipients();
-
         return $this->json([
             //$recipients->first()->toArray()
             $message->toArray()
         ]);
     }
 
-    #[Route('/message/{user}/{recipient_user}', name: 'app_message_store', methods: 'POST')]
-    public function store(User $user, User $recipient_user, Request $request, ValidatorInterface $validator, ManagerRegistry $doctrine): JsonResponse
+    #[Route('/message/{user}/user/{recipient_user}', name: 'app_message_store_user', methods: 'POST')]
+    public function sendMessageToUser(User $user, User $recipient_user, Request $request, ValidatorInterface $validator, ManagerRegistry $doctrine): JsonResponse
     {
         //return $this->json($recipient_user);
         $request = $request->query->all();
@@ -79,11 +77,73 @@ class MessageController extends AbstractController
             return new JsonResponse($errorsString);
         }
         
+        $recipient = new Recipient();
+        $recipient
+            ->setMessage($message)
+            ->setRecipientUser($recipient_user);
+
+        $errors = $validator->validate($recipient);
+        if (count($errors) > 0)
+        {
+            $errorsString = (string) $errors;
+            return new JsonResponse($errorsString);
+        }
+    
+        try
+        {
+            $this->recipientRepository->save($recipient);
+        } catch (Exception $e)
+        {
+            return $this->json([
+                'Exception' => $e
+            ]);
+        }
+
+        try
+        {
+            $this->messageRepository->save($message, true);
+        } catch (Exception $e)
+        {
+            return $this->json([
+                'Exception' => $e
+            ]);
+        }
+        return $this->json([$message->toArray()]);
+        return $this->json([
+            'status' => 'Message succesfully created!',
+            'message' => $message,
+            //'recipients' => $message->getRecipients()->first()->toArray()
+        ], JsonResponse::HTTP_CREATED);
+    }
+
+    #[Route('/message/{user}/group/{recipient_group}', name: 'app_message_store_group', methods: 'POST')]
+    public function sendMessageToGroup(User $user, Group $recipient_group, Request $request, ValidatorInterface $validator, ManagerRegistry $doctrine): JsonResponse
+    {
+        //return $this->json($recipient_user);
+        $request = $request->query->all();
+        
+        if (empty($request['message']) || empty($user) || empty($recipient_group))
+        {
+            throw new NotFoundHttpException('Expecting mandatory parameters!');
+        }
+
+        $message = new Message();
+        $message
+            ->setMessage($request['message'])
+            ->setUserSent($user)
+            ->setCreateDate(new DateTime('now'));
+
+        $errors = $validator->validate($message);
+        if (count($errors) > 0)
+        {
+            $errorsString = (string) $errors;
+            return new JsonResponse($errorsString);
+        }
         
         $recipient = new Recipient();
         $recipient
             ->setMessage($message)
-            ->setRecipientUser($this->userRepository->find($recipient_user));
+            ->setRecipientGroup($recipient_group);
 
         $errors = $validator->validate($recipient);
         if (count($errors) > 0)
