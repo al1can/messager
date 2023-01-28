@@ -45,8 +45,16 @@ class MessageController extends AbstractController
     }
 
     #[Route('/message/{message}', name: 'app_message_show', methods: 'GET')]
-    public function show(ManagerRegistry $doctrine, Message $message): JsonResponse
-    {
+    public function show(Message $message, ManagerRegistry $doctrine): JsonResponse
+    {   
+        dd("asd");
+        if ($message === null)
+        {
+            return $this->json([
+                'response' => 'Requested message not found!'
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
         return $this->json([
             //$recipients->first()->toArray()
             $message->toArray()

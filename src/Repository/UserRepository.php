@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * @extends ServiceEntityRepository<User>
@@ -16,9 +17,12 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class UserRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $passwordHasher;
+
+    public function __construct(ManagerRegistry $registry,UserPasswordHasherInterface $passwordHasher)
     {
         parent::__construct($registry, User::class);
+        $this->passwordHasher = $passwordHasher;
     }
 
     public function save(User $entity, bool $flush = false): User
@@ -39,6 +43,22 @@ class UserRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+    
+    public function addUser(String $phone_number, String $country_code, String $email, String $password, String $name)
+    {
+        $user = new User();
+        $user
+            ->setPhoneNumber($phone_number)
+            ->setCountryCode($country_code)
+            ->setEmail($email)
+            ->setPassword($this->passwordHasher->hashPassword(
+                $user,
+                $password
+            ))
+            ->setName($name);
+
+        $this->save($user, true);
     }
 
 //    /**

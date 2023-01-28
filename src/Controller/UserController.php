@@ -38,10 +38,9 @@ class UserController extends AbstractController
         ], Response::HTTP_OK);
     }
 
-    #[Route('/user/{id}', name: 'app_user_show', methods: 'GET')]
-    public function show(String $id): JsonResponse
+    #[Route('/user/{user}', name: 'app_user_show', methods: 'GET')]
+    public function show(User $user): JsonResponse
     {
-        $user = $this->userRepository->find($id);
         if ($user === null)
         {
             return $this->json([
@@ -58,7 +57,11 @@ class UserController extends AbstractController
     {
         $request = json_decode($request->getContent(), true);
         
-        if (empty($request['phone_number']) || empty($request['country_code']) || empty($request['name']))
+        if (empty($request['phone_number'])
+            || empty($request['country_code'])
+            || empty($request['name'])
+            || empty($request['email'])
+            || empty($request['password']))
         {
             throw new NotFoundHttpException('Expecting mandatory parameters!');
         }
@@ -67,6 +70,8 @@ class UserController extends AbstractController
         $user
             ->setPhoneNumber($request['phone_number'])
             ->setCountryCode($request['country_code'])
+            ->setEmail($request['email'])
+            ->setPassword($request['password'])
             ->setName($request['name']);
 
         $errors = $validator->validate($user);
@@ -92,10 +97,9 @@ class UserController extends AbstractController
         ], JsonResponse::HTTP_CREATED);
     }
 
-    #[Route('user/{id}', name: 'app_user_update', methods: 'PUT')]
-    public function update(String $id, Request $request, ValidatorInterface $validator): JsonResponse
+    #[Route('user/{user}', name: 'app_user_update', methods: 'PUT')]
+    public function update(User $user, Request $request, ValidatorInterface $validator): JsonResponse
     {
-        $user = $this->userRepository->find($id);
         $request = json_decode($request->getContent(), true);
 
         if ($user === null)
@@ -108,6 +112,8 @@ class UserController extends AbstractController
         empty($request['name']) ? true : $user->setName($request['name']);
         empty($request['phone_number']) ? true : $user->setPhoneNumber($request['phone_number']);
         empty($request['country_code']) ? true : $user->setCountryCode($request['country_code']);
+        empty($request['email']) ? true : $user->setEmail($request['email']);
+        empty($request['password']) ? true : $user->setPassword($request['password']);
 
         $errors = $validator->validate($user);
         if (count($errors) > 0)
@@ -124,10 +130,9 @@ class UserController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('user/{id}', name: 'app_user_delete', methods: 'DELETE')]
-    public function delete(String $id): JsonResponse
+    #[Route('user/{user}', name: 'app_user_delete', methods: 'DELETE')]
+    public function delete(User $user): JsonResponse
     {
-        $user = $this->userRepository->find($id);
         $this->userRepository->remove($user, true);
         return $this->json([
             'status' => 'User succesfully deleted!',

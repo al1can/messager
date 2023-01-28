@@ -21,6 +21,8 @@ class AppFixtures extends Fixture
             $user->setPhoneNumber($faker->phoneNumber);
             $user->setCountryCode("+90");
             $user->setName($faker->firstName);
+            $user->setEmail($faker->email);
+            $user->setPassword($faker->password);
             $manager->persist($user);
         }
 
