@@ -24,7 +24,7 @@ class UserController extends AbstractController
         $this->userRepository = $userRepository;
     }
 
-    #[Route('/user', name: 'app_user', methods:'GET')]
+    #[Route('/api/v1/user', name: 'app_user', methods:'GET')]
     public function index(): JsonResponse
     {
         $users = $this->userRepository->findAll();
@@ -38,7 +38,7 @@ class UserController extends AbstractController
         ], Response::HTTP_OK);
     }
 
-    #[Route('/user/{user}', name: 'app_user_show', methods: 'GET')]
+    #[Route('/api/v1/user/{user}', name: 'app_user_show', methods: 'GET')]
     public function show(User $user): JsonResponse
     {
         if ($user === null)
@@ -52,7 +52,7 @@ class UserController extends AbstractController
         ], Response::HTTP_OK);
     }
 
-    #[Route('/user', name: 'app_user_store', methods: 'POST')]
+    #[Route('/api/v1/user', name: 'app_user_store', methods: 'POST')]
     public function store(Request $request, ValidatorInterface $validator): JsonResponse
     {
         $request = json_decode($request->getContent(), true);
@@ -97,7 +97,7 @@ class UserController extends AbstractController
         ], JsonResponse::HTTP_CREATED);
     }
 
-    #[Route('user/{user}', name: 'app_user_update', methods: 'PUT')]
+    #[Route('/api/v1/user/{user}', name: 'app_user_update', methods: 'PUT')]
     public function update(User $user, Request $request, ValidatorInterface $validator): JsonResponse
     {
         $request = json_decode($request->getContent(), true);
@@ -130,7 +130,7 @@ class UserController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('user/{user}', name: 'app_user_delete', methods: 'DELETE')]
+    #[Route('/api/v1/user/{user}', name: 'app_user_delete', methods: 'DELETE')]
     public function delete(User $user): JsonResponse
     {
         $this->userRepository->remove($user, true);

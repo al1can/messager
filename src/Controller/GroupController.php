@@ -25,7 +25,7 @@ class GroupController extends AbstractController
         $this->userRepository = $userRepository;
     }
 
-    #[Route('/group', name: 'app_group', methods: 'GET')]
+    #[Route('/api/v1/group', name: 'app_group', methods: 'GET')]
     public function index(): JsonResponse
     {
         $groups = $this->groupRepository->findAll();
@@ -34,7 +34,7 @@ class GroupController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/group/{group}', name: 'app_group_show', methods: 'GET')]
+    #[Route('/api/v1/group/{group}', name: 'app_group_show', methods: 'GET')]
     public function show(Group $group): JsonResponse
     {
         return $this->json([
@@ -42,7 +42,7 @@ class GroupController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/group', name: 'app_group_store', methods: 'POST')]
+    #[Route('/api/v1/group', name: 'app_group_store', methods: 'POST')]
     public function store(Request $request, ValidatorInterface $validator): JsonResponse
     {
         $request = json_decode($request->getContent(), true);
@@ -87,7 +87,7 @@ class GroupController extends AbstractController
         ], JsonResponse::HTTP_CREATED);
     }
 
-    #[Route('/group/{group}', name: 'app_group_delete', methods: 'DELETE')]
+    #[Route('/api/v1/group/{group}', name: 'app_group_delete', methods: 'DELETE')]
     public function delete(Group $group): JsonResponse
     {
         $this->groupRepository->remove($group, true);
@@ -96,7 +96,7 @@ class GroupController extends AbstractController
         ], JsonResponse::HTTP_NO_CONTENT);
     }
 
-    #[Route('/group/{group}/add', name: 'app_group_add', methods: 'POST')]
+    #[Route('/api/v1/group/{group}/add', name: 'app_group_add', methods: 'POST')]
     public function addUser(Group $group, Request $request): JsonResponse
     {
         $user_ids = json_decode($request->getContent(), true);
@@ -122,7 +122,7 @@ class GroupController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/group/{group}/remove/{user}', name: 'app_group_remove', methods: 'DELETE')]
+    #[Route('/api/v1/group/{group}/remove/{user}', name: 'app_group_remove', methods: 'DELETE')]
     public function removeUser(Group $group, User $user): JsonResponse
     {
         $group->removeUser($user);

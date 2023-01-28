@@ -23,7 +23,7 @@ class AuthController extends AbstractController
         $this->userRepository = $userRepository;
     }
 
-    #[Route('/auth', name: 'app_auth')]
+    #[Route('/api/v1/auth', name: 'app_auth')]
     public function index(): JsonResponse
     {
         return $this->json([

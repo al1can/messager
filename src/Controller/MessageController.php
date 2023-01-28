@@ -34,7 +34,7 @@ class MessageController extends AbstractController
         $this->userRepository = $userRepository;
     }
 
-    #[Route('/message', name: 'app_message', methods: 'GET')]
+    #[Route('/api/v1/message', name: 'app_message', methods: 'GET')]
     public function index(): JsonResponse
     {
         $messages = $this->messageRepository->findAll();
@@ -44,7 +44,7 @@ class MessageController extends AbstractController
         ], JsonResponse::HTTP_OK);
     }
 
-    #[Route('/message/{message}', name: 'app_message_show', methods: 'GET')]
+    #[Route('/api/v1/message/{message}', name: 'app_message_show', methods: 'GET')]
     public function show(Message $message, ManagerRegistry $doctrine): JsonResponse
     {   
         dd("asd");
@@ -61,7 +61,7 @@ class MessageController extends AbstractController
         ]);
     }
 
-    #[Route('/message/{user}/user/{recipient_user}', name: 'app_message_store_user', methods: 'POST')]
+    #[Route('/api/v1/message/{user}/user/{recipient_user}', name: 'app_message_store_user', methods: 'POST')]
     public function sendMessageToUser(User $user, User $recipient_user, Request $request, ValidatorInterface $validator, ManagerRegistry $doctrine): JsonResponse
     {
         //return $this->json($recipient_user);
@@ -125,7 +125,7 @@ class MessageController extends AbstractController
         ], JsonResponse::HTTP_CREATED);
     }
 
-    #[Route('/message/{user}/group/{recipient_group}', name: 'app_message_store_group', methods: 'POST')]
+    #[Route('/api/v1/message/{user}/group/{recipient_group}', name: 'app_message_store_group', methods: 'POST')]
     public function sendMessageToGroup(User $user, Group $recipient_group, Request $request, ValidatorInterface $validator, ManagerRegistry $doctrine): JsonResponse
     {
         //return $this->json($recipient_user);
@@ -188,7 +188,7 @@ class MessageController extends AbstractController
         ], JsonResponse::HTTP_CREATED);
     }
 
-    #[Route('/message/{message}', name: 'app_message_delete', methods: 'DELETE')]
+    #[Route('/api/v1/message/{message}', name: 'app_message_delete', methods: 'DELETE')]
     public function delete(Message $message): JsonResponse
     {
         $this->messageRepository->remove($message, true);
