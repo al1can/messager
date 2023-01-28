@@ -56,7 +56,7 @@ class UserController extends AbstractController
     #[Route('/user', name: 'app_user_store', methods: 'POST')]
     public function store(Request $request, ValidatorInterface $validator): JsonResponse
     {
-        $request = $request->query->all();
+        $request = json_decode($request->getContent(), true);
         
         if (empty($request['phone_number']) || empty($request['country_code']) || empty($request['name']))
         {
@@ -96,7 +96,7 @@ class UserController extends AbstractController
     public function update(String $id, Request $request, ValidatorInterface $validator): JsonResponse
     {
         $user = $this->userRepository->find($id);
-        $request = $request->query->all();
+        $request = json_decode($request->getContent(), true);
 
         if ($user === null)
         {

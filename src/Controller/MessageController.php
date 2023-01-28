@@ -57,7 +57,8 @@ class MessageController extends AbstractController
     public function sendMessageToUser(User $user, User $recipient_user, Request $request, ValidatorInterface $validator, ManagerRegistry $doctrine): JsonResponse
     {
         //return $this->json($recipient_user);
-        $request = $request->query->all();
+        //$request = $request->query->all();
+        $request = json_decode($request->getContent(), true);
         
         if (empty($request['message']) || empty($user) || empty($recipient_user))
         {
@@ -120,7 +121,7 @@ class MessageController extends AbstractController
     public function sendMessageToGroup(User $user, Group $recipient_group, Request $request, ValidatorInterface $validator, ManagerRegistry $doctrine): JsonResponse
     {
         //return $this->json($recipient_user);
-        $request = $request->query->all();
+        $request = json_decode($request->getContent(), true);
         
         if (empty($request['message']) || empty($user) || empty($recipient_group))
         {

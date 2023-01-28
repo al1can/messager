@@ -45,7 +45,7 @@ class GroupController extends AbstractController
     #[Route('/group', name: 'app_group_store', methods: 'POST')]
     public function store(Request $request, ValidatorInterface $validator): JsonResponse
     {
-        $request = $request->query->all();
+        $request = json_decode($request->getContent(), true);
         $user_ids = array_slice($request, 1, count($request), true);
         
         if (empty($request['name']) || empty($user_ids))
@@ -99,7 +99,7 @@ class GroupController extends AbstractController
     #[Route('/group/{group}/add', name: 'app_group_add', methods: 'POST')]
     public function addUser(Group $group, Request $request): JsonResponse
     {
-        $user_ids = $request->query->all();
+        $user_ids = json_decode($request->getContent(), true);
         foreach ($user_ids as $user_id)
         {
             $user = $this->userRepository->find($user_id);
